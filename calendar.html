@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Photo Journal Calendar</title>
+<link rel="stylesheet" href="calendar.css">
+</head>
+
+
+<body>
+    <div class = "header">
+        <div>
+            <div class="month" id="monthName"></div>
+            <div class="year" id="yearName"></div>
+        </div>
+        <div class="journal" > Marithe's Journal</div>
+    </div>
+
+    <div class="calendar">
+        <div class="days">
+            <div>Sunday</div><div>Monday</div><div>Tuesday</div>
+            <div>Wednesday</div><div>Thursday</div><div>Friday</div><div>Saturday</div>
+        </div>
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="footer">
+    <a onclick="prevMonth()">Previous</a>
+    <a onclick="nextMonth()">Next</a>
+    </div>
+
+    <input type="file" id="upload" accept="image/*" multiple hidden>
+
+    <div class="viewer" id="viewer">
+        <div class="viewer-top">
+            <button class="icon-btn" onlick="closeViewer()">←</button>
+            <button class="icon-btn" onlick="deletePhoto()">🗑</button>
+        </div>
+
+        <div class="viewer-card">
+            <div class="image-placeholder" id="placeholder">+</div>
+            <img id="viewerImg">
+            <div class="viewer-meta">
+                <div class="viewer-date" id="viewerDate"></div>
+                <div class="viewer-location" id="viewerLocation"></div>
+            </div>
+        </div>
+
+        <div class="viewer-desc">
+            <textarea id="viewerDesc" placeholder="Write your thoughts..."></textarea>
+        </div>
+    </div>
+
+
+    <script src="calendar.js"></script>
+</body>
+</html>

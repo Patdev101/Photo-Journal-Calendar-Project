@@ -13,6 +13,173 @@ let locationDetected = false;
 let pickerYear = 2026;
 let pickerMonth = 0;
 
+// ============ ADD PHOTO MODAL ============
+let tempPhotoData = {
+    file: null,
+    location: '',
+    description: '',
+    date: null,
+    cell: null
+};
+
+function openAddPhoto(cell) {
+    tempPhotoData.cell = cell;
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const day = parseInt(cell.querySelector('.date').textContent);
+    tempPhotoData.date = { year, month, day };
+    
+    document.getElementById('addPhotoDate').textContent = `Date: ${monthNames[month]} ${day}, ${year}`;
+    
+    // Reset form
+    document.getElementById('uploadPlaceholder').style.display = 'block';
+    document.getElementById('previewImage').style.display = 'none';
+    document.getElementById('previewImage').src = '';
+    document.getElementById('addLocation').value = '';
+    document.getElementById('addDescription').value = '';
+    document.getElementById('uploadArea').classList.remove('has-image');
+    document.getElementById('autoDetectBadge').textContent = '📍 Auto-detecting...';
+    document.getElementById('autoDetectBadge').className = 'auto-detect-badge';
+    
+    // Detect location
+    getLocation(loc => {
+        if (loc) {
+            document.getElementById('addLocation').value = loc;
+            document.getElementById('autoDetectBadge').textContent = '📍 Auto-detected';
+            document.getElementById('autoDetectBadge').className = 'auto-detect-badge detected';
+        } else {
+            document.getElementById('autoDetectBadge').textContent = '📍 Not detected - add manually';
+            document.getElementById('autoDetectBadge').className = 'auto-detect-badge';
+        }
+    });
+    
+    document.getElementById('addPhotoOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAddPhoto() {
+    document.getElementById('addPhotoOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+    tempPhotoData.file = null;
+}
+
+// File input for add photo modal
+document.getElementById('fileInput').onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    tempPhotoData.file = file;
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        document.getElementById('previewImage').src = event.target.result;
+        document.getElementById('previewImage').style.display = 'block';
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+        document.getElementById('uploadArea').classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+};
+
+function savePhoto() {
+    if (!tempPhotoData.file) {
+        alert('Please select a photo first.');
+        return;
+    }
+    
+    const file = tempPhotoData.file;
+    const location = document.getElementById('addLocation').value.trim();
+    const description = document.getElementById('addDescription').value.trim();
+    const { year, month, day } = tempPhotoData.date;
+    
+    const src = URL.createObjectURL(file);
+    const id = Date.now();
+    
+    const photo = {
+        id,
+        src,
+        dateString: `${monthNames[month]} ${day}, ${year}`,
+        location: location || '',
+        locationDetected: false,
+        desc: description || '',
+        year,
+        month,
+        day,
+        inSlider: false
+    };
+    
+    photos.push(photo);
+    
+    // Add to calendar
+    const cell = tempPhotoData.cell;
+    const img = document.createElement('img');
+    img.className = 'photo';
+    img.src = src;
+    img.dataset.id = id;
+    img.onclick = () => openViewer(img);
+    cell.appendChild(img);
+    
+    const btn = cell.querySelector('.add-btn');
+    btn.classList.add('small');
+    
+    closeAddPhoto();
+    updateSlider();
+    openViewer(img);
+}
+
+// ============ NOTE FUNCTIONS ============
+function editNote() {
+    const display = document.getElementById('noteDisplay');
+    const edit = document.getElementById('noteEdit');
+    display.style.display = 'none';
+    edit.style.display = 'block';
+    const currentText = display.textContent;
+    if (currentText.includes('Free area')) {
+        edit.value = '';
+    } else {
+        edit.value = currentText;
+    }
+    edit.focus();
+    edit.select();
+}
+
+function saveNote() {
+    const display = document.getElementById('noteDisplay');
+    const edit = document.getElementById('noteEdit');
+    const val = edit.value.trim();
+    if (val) {
+        display.textContent = val;
+    } else {
+        display.innerHTML = 'Free area or<br>note area';
+    }
+    display.style.display = 'block';
+    edit.style.display = 'none';
+    
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    localStorage.setItem(`note_${year}_${month}`, val);
+}
+
+function loadNote() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const display = document.getElementById('noteDisplay');
+    const saved = localStorage.getItem(`note_${year}_${month}`);
+    if (saved) {
+        display.textContent = saved;
+    } else {
+        display.innerHTML = 'Free area or<br>note area';
+    }
+}
+
+// Close note edit on click outside
+document.addEventListener('click', function(e) {
+    const footer = document.querySelector('.footer-left');
+    const edit = document.getElementById('noteEdit');
+    if (footer && !footer.contains(e.target) && edit.style.display === 'block') {
+        saveNote();
+    }
+});
+
 // ============ DATE PICKER ============
 function openDatePicker() {
     pickerYear = currentDate.getFullYear();
@@ -62,6 +229,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeDatePicker();
         closeViewer();
+        closeAddPhoto();
     }
 });
 
@@ -148,63 +316,15 @@ function buildCalendar() {
             btn.className = existing ? 'add-btn small' : 'add-btn';
             btn.textContent = '+';
             btn.onclick = () => {
-                activeCell = cell;
-                getLocation(loc => {
-                    document.getElementById('fileInput').dataset.location = loc;
-                    document.getElementById('fileInput').dataset.detected = locationDetected;
-                    document.getElementById('fileInput').click();
-                });
+                openAddPhoto(cell);
             };
             cell.appendChild(btn);
         }
         grid.appendChild(cell);
     }
+    loadNote();
     updateSlider();
 }
-
-// ============ UPLOAD ============
-document.getElementById('fileInput').onchange = function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const day = parseInt(activeCell.querySelector('.date').textContent);
-    const location = this.dataset.location || '';
-    const detected = this.dataset.detected === 'true';
-    
-    const src = URL.createObjectURL(file);
-    const id = Date.now();
-    
-    const photo = {
-        id,
-        src,
-        dateString: `${monthNames[month]} ${day}, ${year}`,
-        location: location,
-        locationDetected: detected,
-        desc: '',
-        year,
-        month,
-        day,
-        inSlider: false
-    };
-    
-    photos.push(photo);
-    
-    const img = document.createElement('img');
-    img.className = 'photo';
-    img.src = src;
-    img.dataset.id = id;
-    img.onclick = () => openViewer(img);
-    activeCell.appendChild(img);
-    
-    const btn = activeCell.querySelector('.add-btn');
-    btn.classList.add('small');
-    
-    updateSlider();
-    openViewer(img);
-    this.value = '';
-};
 
 // ============ VIEWER ============
 function openViewer(img) {
@@ -393,7 +513,7 @@ function goToToday() {
     buildCalendar();
 }
 
-// ============ SLIDER - SHOWS ONLY 3 PHOTOS ============
+// ============ SLIDER ============
 function updateSlider() {
     const track = document.getElementById('sliderTrack');
     const dots = document.getElementById('sliderDots');
@@ -403,9 +523,9 @@ function updateSlider() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // Get photos for this month that are marked for slider (max 3)
     const sliderPhotos = photos
-        .filter(p => p.year === year && p.month === month && p.inSlider);
+        .filter(p => p.year === year && p.month === month && p.inSlider)
+        .slice(0, 3);
     
     if (sliderPhotos.length === 0) {
         track.innerHTML = `<div class="slider-slide" style="text-align:center;padding:40px 20px;color:#999;font-size:14px;">

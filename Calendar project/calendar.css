@@ -101,7 +101,6 @@ body {
     align-items: center;
     padding: 20px;
 }
-
 .date-picker-overlay.active {
     display: flex;
 }
@@ -122,7 +121,6 @@ body {
     align-items: center;
     margin-bottom: 24px;
 }
-
 .date-picker-header h2 {
     margin: 0;
     font-size: 20px;
@@ -235,6 +233,192 @@ body {
     color: #555;
 }
 .date-picker-btn:not(.primary):hover {
+    background: #EDE8DC;
+}
+
+/* ADD PHOTO MODAL */
+.add-photo-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 99998;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.add-photo-overlay.active {
+    display: flex;
+}
+
+.add-photo-modal {
+    background: white;
+    border-radius: 20px;
+    max-width: 450px;
+    width: 100%;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.add-photo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.add-photo-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A1A;
+}
+.add-photo-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+.add-photo-close:hover {
+    color: #333;
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed #DED7CC;
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.upload-area:hover {
+    border-color: var(--purple);
+    background: #FAFAFA;
+}
+.upload-area.has-image {
+    border-color: var(--purple);
+    padding: 10px;
+}
+.upload-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 10px;
+}
+.upload-placeholder p {
+    margin: 4px 0;
+    color: #888;
+    font-size: 14px;
+}
+.upload-sub {
+    font-size: 12px !important;
+    color: #B0B0B0 !important;
+}
+
+/* Add Photo Fields */
+.add-photo-field {
+    margin-bottom: 16px;
+}
+.add-photo-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+}
+.add-photo-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    outline: none;
+}
+.add-photo-input:focus {
+    border-color: var(--purple);
+}
+.add-photo-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    min-height: 80px;
+    resize: vertical;
+    transition: border-color 0.2s;
+    outline: none;
+}
+.add-photo-textarea:focus {
+    border-color: var(--purple);
+}
+.auto-detect-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #888;
+    margin-top: 4px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: #F5F1E8;
+}
+.auto-detect-badge.detected {
+    color: #34D399;
+    background: rgba(52, 211, 153, 0.15);
+}
+
+.add-photo-date {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+    padding: 8px 0;
+    border-top: 1px solid #F0F0F0;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.add-photo-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.add-photo-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.add-photo-btn:hover {
+    transform: translateY(-1px);
+}
+.add-photo-btn.save {
+    background: var(--purple);
+    color: white;
+}
+.add-photo-btn.save:hover {
+    background: #6D28D9;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+.add-photo-btn.cancel {
+    background: #F5F1E8;
+    color: #555;
+}
+.add-photo-btn.cancel:hover {
     background: #EDE8DC;
 }
 
@@ -353,7 +537,34 @@ body {
 .footer-left {
     white-space: pre-line;
     line-height: 1.6;
+    cursor: pointer;
+    position: relative;
 }
+.footer-left:hover {
+    color: var(--purple);
+}
+
+/* NOTE EDIT */
+.footer-left .note-edit {
+    display: none;
+    position: absolute;
+    top: -4px;
+    left: 0;
+    width: 100%;
+    padding: 4px 0;
+    border: none;
+    border-bottom: 2px solid var(--purple);
+    font-size: 13px;
+    font-family: inherit;
+    background: transparent;
+    outline: none;
+    resize: none;
+    line-height: 1.6;
+}
+.footer-left .note-edit:focus {
+    border-bottom-color: var(--purple);
+}
+
 .footer-right a {
     font-weight: 600;
     color: var(--purple);
@@ -665,7 +876,8 @@ input[type="file"] {
     to { opacity: 1; transform: translateY(0); }
 }
 .viewer-content,
-.date-picker-modal {
+.date-picker-modal,
+.add-photo-modal {
     animation: fadeIn 0.3s ease;
 }
 
@@ -682,4 +894,5 @@ input[type="file"] {
     .heart-btn { width: 40px; height: 40px; font-size: 20px; bottom: 12px; left: 12px; }
     .date-picker-modal { padding: 20px; }
     .date-picker-months { grid-template-columns: repeat(3, 1fr); }
+    .add-photo-modal { padding: 20px; }
 }
